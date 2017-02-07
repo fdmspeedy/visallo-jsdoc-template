@@ -1,7 +1,7 @@
 {
-  "name": "docdash",
-  "version": "0.4.0",
-  "description": "A clean, responsive documentation template theme for JSDoc 3 inspired by lodash and minami",
+  "name": "@visallo/visallo-jsdoc-template",
+  "version": "0.0.1",
+  "description": "Visallo JSDoc 3 theme",
   "main": "publish.js",
   "scripts": {
     "test": "jsdoc -c fixtures/fixtures.conf.json",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/clenemt/docdash.git"
+    "url": "https://github.com/v5analytics/visallo-jsdoc-template.git"
   },
   "devDependencies": {
     "jsdoc": "latest",
