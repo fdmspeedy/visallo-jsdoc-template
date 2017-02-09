@@ -1,4 +1,3 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
 
 * {
   box-sizing: border-box
@@ -25,7 +24,7 @@ img {
 
 a,
 a:active {
-  color: #606;
+  color: #0088cc;
   text-decoration: none;
 }
 
@@ -34,11 +33,21 @@ a:hover {
 }
 
 article a {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid transparent;
 }
 
 article a:hover, article a:active {
-  border-bottom-color: #222;
+  border-bottom-color: #0088cc;
+}
+
+section header .badge {
+  margin: 0;
+  background: #0088cc;
+  display: inline-block;
+  color: white;
+  font-size: 80%;
+  padding: 0 0.5em;
+  border-radius: 3px;
 }
 
 p, ul, ol, blockquote {
@@ -84,20 +93,17 @@ h4 {
 
 h4.name {
   color: #fff;
-  background: #6d426d;
-  box-shadow: 0 .25em .5em #d3d3d3;
-  border-top: 1px solid #d3d3d3;
-  border-bottom: 1px solid #d3d3d3;
+  background: #0088cc;
   margin: 1.5em 0 0.5em;
   padding: .75em 0 .75em 10px;
 }
 
 h4.name a {
-  color: #fc83ff;
+  color: rgb(255, 182, 19);
 }
 
 h4.name a:hover {
-  border-bottom-color: #fc83ff;
+  border-bottom-color: rgb(255, 182, 19);
 }
 
 h5, .container-overview .subsection-title {
@@ -105,6 +111,21 @@ h5, .container-overview .subsection-title {
   letter-spacing: -0.01em;
   margin: 8px 0 3px 0;
 }
+
+ul.subsection-toc {    
+  margin: 0;
+  padding: 0;
+}
+
+ul.subsection-toc li {
+  list-style: none;            
+  display: inline;
+  white-space: nowrap;
+  margin: 0 0.5em 0 0;
+}
+
+ul.subsection-toc li:after { content: ','; }
+ul.subsection-toc li:last-child:after { content: ''; }
 
 h6 {
   font-size: 100%;
@@ -199,7 +220,7 @@ nav ul a:active {
 
 nav a:hover,
 nav a:active {
-  color: #606;
+  color: #0088cc;
 }
 
 nav > ul {
@@ -207,7 +228,7 @@ nav > ul {
 }
 
 nav > ul > li > a {
-  color: #606;
+  color: #0088cc;
 }
 
 nav ul ul {
@@ -237,7 +258,7 @@ nav h2 {
 nav > h2 > a {
    display: block;
    margin: 10px 0 -10px;
-   color: #606 !important;
+   color: #0088cc !important;
 }
 
 footer {
@@ -271,7 +292,7 @@ footer {
 }
 
 .type-signature {
-  color: #CA79CA
+  color: #76badd;
 }
 
 .type-signature:last-child {
@@ -283,7 +304,7 @@ footer {
 }
 
 .signature {
-    color: #fc83ff;
+    color: rgb(255, 182, 19);
 }
 
 .details {
@@ -395,7 +416,7 @@ footer {
    user-select: text;
 }
 
-.params, .props {
+.params, .props, .extensionpoints {
   border-spacing: 0;
   border: 1px solid #ddd;
   border-collapse: collapse;
@@ -414,13 +435,13 @@ footer {
   white-space: pre;
 }
 
-.params td, .params .name, .props .name, .name code {
+.params td, .params .name, .props .name, .extensionpoints .name, .name code {
    color: #4D4E53;
    font-family: Consolas, Monaco, 'Andale Mono', monospace;
    font-size: 100%;
 }
 
-.params td, .params th, .props td, .props th {
+.params td, .params th, .props td, .props th, .extensionpoints td, .extensionpoints th {
    margin: 0px;
    text-align: left;
    vertical-align: top;
@@ -432,28 +453,32 @@ footer {
    border-top: 1px solid #eee
 }
 
-.params thead tr, .props thead tr {
+.params thead tr, .props thead tr, .extensionpoints thead tr {
    background-color: #fff;
    font-weight: bold;
 }
 
-.params .params thead tr, .props .props thead tr {
+.params .params thead tr, .props .props thead tr, .extensionpoints .extensionpoints thead tr {
    background-color: #fff;
    font-weight: bold;
 }
 
-.params td.description > p:first-child, .props td.description > p:first-child {
+.params td.description > p:first-child,
+.props td.description > p:first-child,
+.extensionpoints td.description > p:first-child {
    margin-top: 0;
    padding-top: 0;
 }
 
-.params td.description > p:last-child, .props td.description > p:last-child {
+.params td.description > p:last-child,
+.props td.description > p:last-child,
+.extensionpoints td.description > p:last-child {
    margin-bottom: 0;
    padding-bottom: 0;
 }
 
 span.param-type, .params td .param-type, .param-type dd {
-   color: #606;
+   color: #0088cc;
   font-family: Consolas, Monaco, 'Andale Mono', monospace
 }
 

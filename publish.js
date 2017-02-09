@@ -294,6 +294,8 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
         var itemsNav = '';
 
         items.forEach(function(item) {
+            if (/^services\//.test(item.name) && itemHeading === 'Modules') return;
+
             var methods = find({kind:'function', memberof: item.longname});
             var members = find({kind:'member', memberof: item.longname});
             var docdash = env && env.conf && env.conf.docdash || {};
@@ -302,8 +304,9 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
                 itemsNav += '<li>' + linktoFn('', item.name);
                 itemsNav += '</li>';
             } else if ( !hasOwnProp.call(itemsSeen, item.longname) ) {
-                itemsNav += '<li>' + linktoFn(item.longname, item.name.replace(/^module:/, ''));
+                itemsNav += '<li>' + linktoFn(item.longname, item.name.replace(/^(module:|services\/)/g, ''));
 
+                /*
                 if (docdash.static && members.find(function (m) { return m.scope === 'static'; } )) {
                     itemsNav += "<ul class='members'>";
 
@@ -328,6 +331,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
 
                     itemsNav += "</ul>";
                 }
+                */
 
                 itemsNav += '</li>';
                 itemsSeen[item.longname] = true;
@@ -372,11 +376,28 @@ function buildNav(members) {
     var seenTutorials = {};
 
     nav += buildMemberNav(members.classes, 'Classes', seen, linkto);
-    nav += buildMemberNav(members.modules, 'Modules', {}, linkto);
+    nav += buildMemberNav(members.modules.sort(function(a, b) {
+        var a1 = a.name, b1 = b.name
+        if (a1.indexOf('public/') === 0) a1 = '0' + a1
+        if (b1.indexOf('public/') === 0) b1 = '0' + b1
+        return a1.localeCompare(b1)
+    }), 'Modules', {}, linkto);
+    nav += buildMemberNav(members.modules.filter(function(i) {
+        return /^services\//.test(i.name)
+    }).sort(function(a, b) {
+        var a1 = a.name, b1 = b.name
+        if (a1.indexOf('public/') === 0) a1 = '0' + a1
+        if (b1.indexOf('public/') === 0) b1 = '0' + b1
+        return a1.localeCompare(b1)
+    }), 'Services', {}, linkto);
+    nav += buildMemberNav(members.events.filter(function(event) {
+        return event.scope && event.scope === 'global'
+    }), 'Events', seen, linkto);
+    //nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);
+    //nav += buildMemberNav(members.mixins, 'Mixins', seen, linkto);
+
+
     nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
-    nav += buildMemberNav(members.events, 'Events', seen, linkto);
-    nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);
-    nav += buildMemberNav(members.mixins, 'Mixins', seen, linkto);
     nav += buildMemberNav(members.tutorials, 'Tutorials', seenTutorials, linktoTutorial);
     nav += buildMemberNav(members.interfaces, 'Interfaces', seen, linkto);
 
@@ -587,6 +608,11 @@ exports.publish = function(taffyData, opts, tutorials) {
     view.tutoriallink = tutoriallink;
     view.htmlsafe = htmlsafe;
     view.outputSourceFiles = outputSourceFiles;
+    view.stripTags = function(description) {
+        if (!description) return '';
+        var regex = /(<([^>]+)>)/ig;
+        return description.replace(regex, '');
+    }
 
     // once for all
     view.nav = buildNav(members);

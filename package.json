@@ -1,6 +1,6 @@
 {
-  "name": "@visallo/visallo-jsdoc-template",
-  "version": "0.0.1",
+  "name": "visallo-jsdoc-template",
+  "version": "1.0.0",
   "description": "Visallo JSDoc 3 theme",
   "main": "publish.js",
   "scripts": {
@@ -17,7 +17,10 @@
     "browser-sync": "latest",
     "watch-run": "latest"
   },
-  "author": "Clement Moron <clement.moron@gmail.com>",
+  "author": "Jason Harwig <jason.harwig@visallo.com>",
+  "contributors": [
+    "Clement Moron <clement.moron@gmail.com>"
+  ],
   "license": "Apache-2.0",
   "keywords": [
     "jsdoc",

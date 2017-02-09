@@ -47,10 +47,21 @@ var self = this;
     <?js= this.partial('examples.tmpl', examples) ?>
 <?js } ?>
 
+<?js if (data.attrs && attrs.length) { ?>
+    <h5>Attributes:</h5>
+    <?js= this.partial('params.tmpl', attrs) ?>
+<?js } ?>
+
 <?js if (data.params && params.length) { ?>
     <h5>Parameters:</h5>
     <?js= this.partial('params.tmpl', params) ?>
 <?js } ?>
+
+<?js if (data.extensionpoints && extensionpoints.length) { ?>
+    <h5>Extension Point<?js= extensionpoints.length > 1? 's':'' ?></h5>
+    <?js= this.partial('extensionpoints.tmpl', extensionpoints) ?>
+<?js } ?>
+
 
 <?js if (data.kind !== 'module' && data.requires && data.requires.length) { ?>
 <h5>Requires:</h5>
