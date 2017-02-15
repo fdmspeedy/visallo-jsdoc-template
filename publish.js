@@ -136,6 +136,9 @@ function addNonParamAttributes(items) {
 
 function addSignatureParams(f) {
     var params = f.params ? addParamAttributes(f.params) : [];
+    if (f.isExtension) {
+        params.splice(0, 0, `"${f.longname}"`)
+    }
     f.signature = util.format( '%s(%s)', (f.signature || ''), params.join(', ') );
 }
 
@@ -216,6 +219,25 @@ function generate(type, title, docs, filename, resolveLinks) {
 
     var outpath = path.join(outdir, filename),
         html = view.render('container.tmpl', docData);
+
+    if (resolveLinks) {
+        html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
+    }
+
+    fs.writeFileSync(outpath, html, 'utf8');
+}
+
+function generateList(type, title, docs, filename, resolveLinks) {
+    resolveLinks = resolveLinks === false ? false : true;
+
+    var docData = {
+        type: type,
+        title: title,
+        docs: docs
+    };
+
+    var outpath = path.join(outdir, filename),
+        html = view.render('containerlist.tmpl', docData);
 
     if (resolveLinks) {
         html = helper.resolveLinks(html); // turn {@link foo} into <a href="foodoc.html">foo</a>
@@ -339,7 +361,11 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
         });
 
         if (itemsNav !== '') {
-            nav += '<h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul>';
+            if (itemHeading === 'Extension Points') {
+                nav += '<h3>' + linkto('extensionpoints', itemHeading) + '</h3><ul>' + itemsNav + '</ul>';
+            } else {
+                nav += '<h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul>';
+            }
         }
     }
 
@@ -375,36 +401,11 @@ function buildNav(members) {
     var seen = {};
     var seenTutorials = {};
 
-    nav += buildMemberNav(members.classes, 'Classes', seen, linkto);
-    nav += buildMemberNav(members.modules.sort(function(a, b) {
-        var a1 = a.name, b1 = b.name
-        if (a1.indexOf('public/') === 0) a1 = '0' + a1
-        if (b1.indexOf('public/') === 0) b1 = '0' + b1
-        return a1.localeCompare(b1)
-    }), 'Modules', {}, linkto);
-    nav += buildMemberNav(members.modules.filter(function(i) {
-        return /^services\//.test(i.name)
-    }).sort(function(a, b) {
-        var a1 = a.name, b1 = b.name
-        if (a1.indexOf('public/') === 0) a1 = '0' + a1
-        if (b1.indexOf('public/') === 0) b1 = '0' + b1
-        return a1.localeCompare(b1)
-    }), 'Services', {}, linkto);
-    nav += buildMemberNav(members.events.filter(function(event) {
-        return event.scope && event.scope === 'global'
-    }), 'Events', seen, linkto);
-    //nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);
-    //nav += buildMemberNav(members.mixins, 'Mixins', seen, linkto);
-
-
-    nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
-    nav += buildMemberNav(members.tutorials, 'Tutorials', seenTutorials, linktoTutorial);
-    nav += buildMemberNav(members.interfaces, 'Interfaces', seen, linkto);
-
-    if (members.globals.length) {
+    var globals = members.globals.filter(g => !g.isExtension);
+    if (globals.length) {
         var globalNav = '';
 
-        members.globals.forEach(function(g) {
+        globals.forEach(function(g) {
             if ( g.kind !== 'typedef' && !hasOwnProp.call(seen, g.longname) ) {
                 globalNav += '<li>' + linkto(g.longname, g.name) + '</li>';
             }
@@ -419,6 +420,44 @@ function buildNav(members) {
             nav += '<h3>Global</h3><ul>' + globalNav + '</ul>';
         }
     }
+
+    // CLASSES
+    nav += buildMemberNav(members.classes.filter(c => !c.isExtension), 'Classes', seen, linkto);
+
+    // MODULES
+    nav += buildMemberNav(members.modules.sort(function(a, b) {
+        var a1 = a.name, b1 = b.name
+        if (a1.indexOf('public/') === 0) a1 = '0' + a1
+        if (b1.indexOf('public/') === 0) b1 = '0' + b1
+        return a1.localeCompare(b1)
+    }), 'Modules', {}, linkto);
+
+    // SERVICES
+    nav += buildMemberNav(members.modules.filter(function(i) {
+        return /^services\//.test(i.name)
+    }).sort(function(a, b) {
+        var a1 = a.name, b1 = b.name
+        if (a1.indexOf('public/') === 0) a1 = '0' + a1
+        if (b1.indexOf('public/') === 0) b1 = '0' + b1
+        return a1.localeCompare(b1)
+    }), 'Services', {}, linkto);
+
+    // EVENTS
+    nav += buildMemberNav(members.events.filter(function(event) {
+        return event.scope && event.scope === 'global'
+    }), 'Events', seen, linkto);
+
+    // EXTENSION POINTS
+    var extensionPoints = find({ kind: 'class', isExtension: true });
+    nav += buildMemberNav(extensionPoints, 'Extension Points', {}, n => linkto(n, n));
+
+    //nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);
+    //nav += buildMemberNav(members.mixins, 'Mixins', seen, linkto);
+
+
+    nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
+    nav += buildMemberNav(members.tutorials, 'Tutorials', seenTutorials, linktoTutorial);
+    nav += buildMemberNav(members.interfaces, 'Interfaces', seen, linkto);
 
     return nav;
 }
@@ -445,6 +484,9 @@ exports.publish = function(taffyData, opts, tutorials) {
 
     var globalUrl = helper.getUniqueFilename('global');
     helper.registerLink('global', globalUrl);
+
+    var extensionPointsUrl = helper.getUniqueFilename('extensionPoints');
+    helper.registerLink('extensionpoints', extensionPointsUrl);
 
     // set up templating
     view.layout = conf.default.layoutFile ?
@@ -479,6 +521,12 @@ exports.publish = function(taffyData, opts, tutorials) {
                     code: code || example
                 };
             });
+        }
+        if (doclet.validator) {
+            doclet.validator = {
+                code: doclet.validator,
+                caption: ''
+            }
         }
         if (doclet.see) {
             doclet.see.forEach(function(seeItem, i) {
@@ -627,6 +675,11 @@ exports.publish = function(taffyData, opts, tutorials) {
         generate('', 'Global', [{kind: 'globalobj'}], globalUrl);
     }
 
+    var extensionPoints = find({isExtension:true})
+    if (extensionPoints.length) {
+        generateList('', 'Extension Points', extensionPoints, extensionPointsUrl);
+    }
+
     // index page displays information from package.json and lists files
     var files = find({kind: 'file'});
     var packages = find({kind: 'package'});
@@ -651,9 +704,14 @@ exports.publish = function(taffyData, opts, tutorials) {
             generate('Module', myModules[0].name, myModules, helper.longnameToUrl[longname]);
         }
 
-        var myClasses = helper.find(classes, {longname: longname});
+        var myClasses = helper.find(classes, {longname: longname, isExtension: false});
         if (myClasses.length) {
             generate('Class', myClasses[0].name, myClasses, helper.longnameToUrl[longname]);
+        }
+
+        var myExtensions = helper.find(classes, {longname: longname, isExtension: true});
+        if (myExtensions.length) {
+            generate('Class', longname, myExtensions, helper.longnameToUrl[longname]);
         }
 
         var myNamespaces = helper.find(namespaces, {longname: longname});

@@ -1,3 +1,46 @@
+var escodegen = require('escodegen')
+
+exports.astNodeVisitor = {
+    visitNode: function(node, e, parser, currentSourceName) {
+
+        // Find all registry.documentExtensionPoint calls and extract the
+        // description, validator function automatically
+
+        if (node.type === 'CallExpression' &&
+            node.callee.property &&
+            node.callee.property.name === 'documentExtensionPoint') {
+
+            const { arguments } = node;
+            const point = arguments[0].value;
+            const description = arguments[1].value;
+            const validatorFn = getValidatorFn(arguments[2])
+
+            if (!point) {
+                throw new Error('Requires literal extension point name: ' + currentSourceName + ': ' + node.loc.start.line);
+            }
+            if (!description) {
+                throw new Error('Description parameter (2) must be single string: ' + currentSourceName + ': ' + node.loc.start.line);
+            }
+
+            var prefix = '';
+            if (node.leadingComments && node.leadingComments.length) {
+                prefix = node.leadingComments.map(c => c.value).join('')
+            }
+
+            e.event = 'jsdocCommentFound';
+            e.comment = `/**
+ ${prefix}
+ * @classdesc ${description}
+ * @extensionpoint ${point}
+ * @validator
+ * ${validatorFn || '// Unable to interpret validator function'}
+ */`;
+            e.filename = currentSourceName;
+            e.lineno = node.loc.start.line;
+        }
+    }
+};
+
 exports.defineTags = function(dictionary) {
     dictionary.defineTag("flight", {
         canHaveType: false,
@@ -23,13 +66,28 @@ exports.defineTags = function(dictionary) {
     });
     dictionary.defineTag("extensionpoint", {
         mustHaveValue: true,
-        canHaveType: true,
+        mustNotHaveDescription: true,
+        canHaveType: false,
         canHaveName: true,
         onTagged: function(doclet, tag) {
-            doclet.extensionpoints = doclet.extensionpoints || [];
-            doclet.extensionpoints.push(tag.value);
+            doclet.kind = 'class'
+            doclet.isExtension = true
+            if (!doclet.name) {
+                doclet.name = tag.value.name
+            }
+            (doclet.see || (doclet.see = [])).push('module:registry')
+            //doclet.extensionpoints = doclet.extensionpoints || [];
+            //doclet.extensionpoints.push(tag.value);
         }
     });
+    dictionary.defineTag("validator", {
+        keepsWhitespace: true,
+        removesIndent: true,
+        mustHaveValue: true,
+        onTagged: function(doclet, tag) {
+            doclet.validator = tag.value
+        }
+    }),
     dictionary.defineTag("attr", {
         mustHaveValue: true,
         canHaveType: true,
@@ -41,3 +99,19 @@ exports.defineTags = function(dictionary) {
     })
 };
 
+
+function getValidatorFn(validator) {
+    var validatorFn;
+
+    // Rename function name
+    if (validator.id) {
+        validator.id.name = 'extensionValidator'
+    }
+
+    try {
+       validatorFn = escodegen.generate(validator);
+    } catch (e) {
+        console.error('Unable to generate code from AST' + e)
+    }
+    return validatorFn;
+}

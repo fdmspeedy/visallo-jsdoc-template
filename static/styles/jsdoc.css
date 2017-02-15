@@ -186,6 +186,7 @@ nav {
   overflow: auto;
   position: fixed;
   height: 100%;
+  padding-bottom: 2em;
 }
 
 nav h3 {
@@ -198,6 +199,14 @@ nav h3 {
   margin: 15px 0 10px;
   padding: 0;
   color: #000;
+}
+
+nav h3 a {
+  color: inherit;
+}
+nav h3 a:hover {
+  color: inherit;
+  text-decoration: underline;
 }
 
 nav ul {
@@ -402,11 +411,11 @@ footer {
 }
 
 .prettyprint.linenums li {
-   border-left: 3px #34446B solid;
+   border-left: 3px #0088cc solid;
 }
 
 .prettyprint.linenums li.selected, .prettyprint.linenums li.selected * {
-   background-color: #34446B;
+   background-color: #B3D2EB;
 }
 
 .prettyprint.linenums li * {
