@@ -10,7 +10,7 @@ var self = this;
 
 <?js= this.partial('details.tmpl', data) ?>
 
-<?js if (data.description) { ?>
+<?js if (data.kind !== 'typedef' && data.description) { ?>
 <div class="description">
     <?js= data.description ?>
 </div>
@@ -28,6 +28,13 @@ var self = this;
 <?js if (data.fires && fires.length) { ?>
     <h5>Fires:</h5>
     <ul><?js fires.forEach(function(f) { ?>
+        <li><?js= self.linkto(f) ?></li>
+    <?js }); ?></ul>
+<?js } ?>
+
+<?js if (data.listens && listens.length) { ?>
+    <h5>Listens:</h5>
+    <ul><?js listens.forEach(function(f) { ?>
         <li><?js= self.linkto(f) ?></li>
     <?js }); ?></ul>
 <?js } ?>

@@ -112,7 +112,13 @@ if (data.defaultvalue && (data.defaultvaluetype === 'object' || data.defaultvalu
     <dt class="tag-tutorial">Tutorials:</dt>
     <dd class="tag-tutorial">
         <ul><?js tutorials.forEach(function(t) { ?>
-            <li><?js= self.tutoriallink(t) ?></li>
+            <li><?js
+              if (/^http/.test(t)) { 
+                ?><a target="_blank" href="<?js= t ?>"><?js= t ?></a><?js 
+              } else { 
+                ?><?js= self.tutoriallink(t) ?><?js
+              }
+            ?></li>
         <?js }); ?></ul>
     </dd>
     <?js } ?>
@@ -135,6 +141,12 @@ if (data.defaultvalue && (data.defaultvaluetype === 'object' || data.defaultvalu
     </dd>
     <?js } ?>
 </dl>
+
+<?js if (data.kind === 'typedef' && data.description && !data.isExtension) { ?>
+<div class="description">
+    <?js= data.description ?>
+</div>
+<?js } ?>
 
 <?js
     var properties = data.properties;

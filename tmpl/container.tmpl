@@ -58,6 +58,9 @@
 
         <?js if (doc.validator) { ?>
             <h3>Validation Function</h3>
+            <div class="description">
+              <p>Extensions registered must pass this validation check to be used.</p>
+            </div>
             <?js= self.partial('examples.tmpl', [doc.validator]) ?>
         <?js } ?>
 

@@ -14,12 +14,32 @@ exports.astNodeVisitor = {
             const point = arguments[0].value;
             const description = arguments[1].value;
             const validatorFn = getValidatorFn(arguments[2])
+            const optionsOrUrl = arguments[3];
+            var tutorial = null;
 
             if (!point) {
                 throw new Error('Requires literal extension point name: ' + currentSourceName + ': ' + node.loc.start.line);
             }
             if (!description) {
                 throw new Error('Description parameter (2) must be single string: ' + currentSourceName + ': ' + node.loc.start.line);
+            }
+            if (optionsOrUrl) {
+                if (optionsOrUrl.value) {
+                    tutorial = optionsOrUrl.value;
+                } else if (optionsOrUrl.type === 'ObjectExpression' && optionsOrUrl.properties) {
+                    optionsOrUrl.properties.forEach(p => {
+                        if (p.key && p.key.name === 'url') {
+                            if (p.value && p.value.value) {
+                                tutorial = p.value.value;
+                            }
+                        }
+                    })
+                }
+            }
+            if (tutorial) {
+                tutorial = `@tutorial ${tutorial}`
+            } else {
+                tutorial = ''
             }
 
             var prefix = '';
@@ -32,6 +52,7 @@ exports.astNodeVisitor = {
  ${prefix}
  * @classdesc ${description}
  * @extensionpoint ${point}
+ * ${tutorial}
  * @validator
  * ${validatorFn || '// Unable to interpret validator function'}
  */`;
@@ -104,12 +125,13 @@ function getValidatorFn(validator) {
     var validatorFn;
 
     // Rename function name
-    if (validator.id) {
-        validator.id.name = 'extensionValidator'
+    if (!validator.id) {
+        validator.id = {};
     }
+    validator.id.name = 'extensionValidator'
 
     try {
-       validatorFn = escodegen.generate(validator);
+        validatorFn = escodegen.generate(validator);
     } catch (e) {
         console.error('Unable to generate code from AST' + e)
     }

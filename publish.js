@@ -137,7 +137,8 @@ function addNonParamAttributes(items) {
 function addSignatureParams(f) {
     var params = f.params ? addParamAttributes(f.params) : [];
     if (f.isExtension) {
-        params.splice(0, 0, `"${f.longname}"`)
+        params = [`"${f.longname}"`, 'config']
+        //params.splice(0, 0, `"${f.longname}"`)
     }
     f.signature = util.format( '%s(%s)', (f.signature || ''), params.join(', ') );
 }
@@ -448,7 +449,7 @@ function buildNav(members) {
     }), 'Events', seen, linkto);
 
     // EXTENSION POINTS
-    var extensionPoints = find({ kind: 'class', isExtension: true });
+    var extensionPoints = find({ kind: 'class', isExtension: true })
     nav += buildMemberNav(extensionPoints, 'Extension Points', {}, n => linkto(n, n));
 
     //nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);

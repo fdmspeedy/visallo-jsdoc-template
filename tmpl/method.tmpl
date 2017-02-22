@@ -23,7 +23,7 @@ var self = this;
 
 <?js= this.partial('details.tmpl', data) ?>
 
-<?js if (data.kind !== 'module' && data.description) { ?>
+<?js if (data.kind !== 'module' && data.kind !== 'typedef' && data.description && !data.isExtension) { ?>
 <div class="description">
     <?js= data.description ?>
 </div>
@@ -48,7 +48,7 @@ var self = this;
     <ul><li><?js= this.linkto(data['this'], data['this']) ?></li></ul>
 <?js } ?>
 
-<?js if (data.examples && examples.length) { ?>
+<?js if (!data.isExtension && data.examples && examples.length) { ?>
     <h5>Example<?js= examples.length > 1? 's':'' ?></h5>
     <?js= this.partial('examples.tmpl', examples) ?>
 <?js } ?>
@@ -59,7 +59,11 @@ var self = this;
 <?js } ?>
 
 <?js if (data.params && params.length) { ?>
+    <?js if (data.isExtension) { ?>
+    <h5>Configuration Properties:</h5>
+    <?js } else { ?>
     <h5>Parameters:</h5>
+    <?js } ?>
     <?js= this.partial('params.tmpl', params) ?>
 <?js } ?>
 
