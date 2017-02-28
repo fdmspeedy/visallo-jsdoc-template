@@ -29,12 +29,18 @@ img {
   border-radius: 4px;
   color: rgba(76, 109, 171, 1)
 }
+.info code {
+  background: #d4e4f3;
+}
 .warning {
   background: rgb(255, 255, 224);
   border: 1px solid rgb(240, 240, 0);
   padding: 0.5em;
   border-radius: 4px;
   color: rgb(111, 111, 0);
+}
+.warning code {
+  background: #f5f5d8;
 }
 
 a,
