@@ -1,6 +1,6 @@
 {
-  "name": "visallo-jsdoc-template",
-  "version": "1.1.5",
+  "name": "@visallo/visallo-jsdoc-template",
+  "version": "1.1.6",
   "description": "Visallo JSDoc 3 theme",
   "main": "publish.js",
   "scripts": {
