@@ -44,7 +44,10 @@ exports.astNodeVisitor = {
 
             var prefix = '';
             if (node.leadingComments && node.leadingComments.length) {
-                prefix = node.leadingComments.map(c => c.value).join('')
+                var last = node.leadingComments[node.leadingComments.length - 1];
+                prefix = last.value;
+            } else {
+                console.warn("No documentation comment above extension point", point)
             }
 
             e.event = 'jsdocCommentFound';
