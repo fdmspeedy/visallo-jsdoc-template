@@ -1,3 +1,6 @@
+<?js
+var templates = env.conf.templates;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,7 +38,11 @@
 
 <br class="clear">
 
-<footer><a href="http://docs.visallo.org">Visallo Documentation</a></footer>
+<footer>
+<?js if (templates && templates.footerLink) { ?>
+    <a href="<?js= templates.footerLink.url ?>"><?js= templates.footerLink.text ?></a>
+<?js } ?>
+</footer>
 
 <script>prettyPrint();</script>
 <script src="scripts/linenumber.js"></script>
